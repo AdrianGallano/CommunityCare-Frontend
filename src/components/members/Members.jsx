@@ -48,16 +48,16 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 
-export default function Families() {
-    const [families, setFamilies] = useState([])
+export default function Members() {
+    const [members, setMembers] = useState([])
     const [pageInfo, setPageInfo] = useState({})
     const [loading, setLoading] = useState(false)
 
     useEffect(() => {
         const AsyncFetch = async () => {
             setLoading(true)
-            const data = await dataFetch("/families?page_size=10", "GET")
-            setFamilies(data.results)
+            const data = await dataFetch("/members?page_size=10", "GET")
+            setMembers(data.results)
             setPageInfo({
                 "count": data.count,
                 "previous": data.previous,
@@ -72,23 +72,29 @@ export default function Families() {
         console.log(e.currentTarget.getAttribute("name"))
     }
 
-    const tableRows = families.map((family) => {
+    const tableRows = members.map((member) => {
         return (
-            <TableRow name={family.id} key={family.id} onClick={handleClick}>
+            <TableRow name={member.id} key={member.id} onClick={handleClick}>
                 <TableCell className="font-medium">
-                    {family.title}
+                    {member.name}
                 </TableCell>
                 <TableCell>
-                    {family.total_family_income}
+                    {member.age}
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
-                    {family.no_of_members}
+                    {member.contact_no}
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
-                    {family.location.address}
+                    {member.income}
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
-                    {family.location.coordinates}
+                    {member.gender}
+                </TableCell>
+                <TableCell className="hidden md:table-cell">
+                    {member.birthdate}
+                </TableCell>
+                <TableCell className="hidden md:table-cell">
+                    {member.birth_place}
                 </TableCell>
                 <TableCell>
                     <DropdownMenu>
@@ -115,9 +121,9 @@ export default function Families() {
 
     return (
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
-            <Sidebar page="families" />
+            <Sidebar page="members" />
             <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
-                <Header page="families" />
+                <Header page="members" />
                 <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
                     <Tabs defaultValue="all">
                         <div className="flex items-center">
@@ -128,7 +134,7 @@ export default function Families() {
                                 <Button size="sm" className="h-8 gap-1">
                                     <PlusCircle className="h-3.5 w-3.5" />
                                     <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                                        Add Family
+                                        Add Member
                                     </span>
                                 </Button>
                             </div>
@@ -136,25 +142,31 @@ export default function Families() {
                         <TabsContent value="all">
                             <Card x-chunk="dashboard-06-chunk-0">
                                 <CardHeader>
-                                    <CardTitle>Families</CardTitle>
+                                    <CardTitle>Members</CardTitle>
                                     <CardDescription>
-                                        Manage families and view their informations.
+                                        Manage members and view their informations.
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent>
                                     <Table>
                                         <TableHeader>
                                             <TableRow>
-                                                <TableHead>Family Name</TableHead>
-                                                <TableHead>Household Income</TableHead>
+                                                <TableHead>Name</TableHead>
+                                                <TableHead>Age</TableHead>
                                                 <TableHead className="hidden md:table-cell">
-                                                    No. of Family Members
+                                                    Contact No.
                                                 </TableHead>
                                                 <TableHead className="hidden md:table-cell">
-                                                    Address
+                                                    Income
                                                 </TableHead>
                                                 <TableHead className="hidden md:table-cell">
-                                                    Coordinates
+                                                    Gender
+                                                </TableHead>
+                                                <TableHead className="hidden md:table-cell">
+                                                    Date of Birth
+                                                </TableHead>
+                                                <TableHead className="hidden md:table-cell">
+                                                    Place of Birth
                                                 </TableHead>
                                                 <TableHead>
                                                     <span className="sr-only">Actions</span>
@@ -164,6 +176,7 @@ export default function Families() {
                                         <TableBody>
                                             {loading
                                                 ? <TableRow>
+                                                    <TableCell > </TableCell>
                                                     <TableCell > </TableCell>
                                                     <TableCell > </TableCell>
                                                     <TableCell>
@@ -176,7 +189,7 @@ export default function Families() {
                                 </CardContent>
                                 <CardFooter>
                                     <div className="text-xs text-muted-foreground">
-                                        Showing <strong>{pageInfo.previous ? pageInfo.previous : 1}-{pageInfo.count}</strong> of <strong>{pageInfo.count}</strong> Familiies
+                                        Showing <strong>{pageInfo.previous ? pageInfo.previous : 1}-{pageInfo.count}</strong> of <strong>{pageInfo.count}</strong> Members
                                     </div>
                                 </CardFooter>
                             </Card>

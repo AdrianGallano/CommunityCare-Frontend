@@ -6,6 +6,7 @@ import Dashboard from './components/dashboard/Dashboard'
 import Map from './components/map/Map'
 import Analytics from './components/analytics/Analytics'
 import Families from './components/families/Families'
+import Members from './components/members/Members'
 
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/map" element={<Map />} />
       <Route path="/families" element={<Families />} />
+      <Route path="/members" element={<Members />} />
       <Route path="/analytics" element={<Analytics />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>

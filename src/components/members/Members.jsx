@@ -47,11 +47,13 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
+import RecordTable from "../recordtable/RecordTable"
 
 export default function Members() {
     const [members, setMembers] = useState([])
     const [pageInfo, setPageInfo] = useState({})
     const [loading, setLoading] = useState(false)
+    const columns = ["Name", "Contact No.", "Income", "Age", "Gender", "Actions"]
 
     useEffect(() => {
         const AsyncFetch = async () => {
@@ -68,18 +70,12 @@ export default function Members() {
         AsyncFetch()
     }, [])
 
-    function handleClick(e) {
-        console.log(e.currentTarget.getAttribute("name"))
-    }
 
     const tableRows = members.map((member) => {
         return (
-            <TableRow name={member.id} key={member.id} onClick={handleClick}>
+            <TableRow name={member.id} key={member.id}>
                 <TableCell className="font-medium">
                     {member.name}
-                </TableCell>
-                <TableCell>
-                    {member.age}
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
                     {member.contact_no}
@@ -88,13 +84,10 @@ export default function Members() {
                     {member.income}
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
+                    {member.age}
+                </TableCell>
+                <TableCell className="font-medium">
                     {member.gender}
-                </TableCell>
-                <TableCell className="hidden md:table-cell">
-                    {member.birthdate}
-                </TableCell>
-                <TableCell className="hidden md:table-cell">
-                    {member.birth_place}
                 </TableCell>
                 <TableCell>
                     <DropdownMenu>
@@ -118,84 +111,23 @@ export default function Members() {
         )
     })
 
+    function addButtonHandler() {
+        console.log("CLICK")
+    }
 
     return (
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
             <Sidebar page="members" />
             <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
-                <Header page="members" />
-                <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
-                    <Tabs defaultValue="all">
-                        <div className="flex items-center">
-                            <TabsList>
-                                <TabsTrigger value="all">All</TabsTrigger>
-                            </TabsList>
-                            <div className="ml-auto flex items-center gap-2">
-                                <Button size="sm" className="h-8 gap-1">
-                                    <PlusCircle className="h-3.5 w-3.5" />
-                                    <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                                        Add Member
-                                    </span>
-                                </Button>
-                            </div>
-                        </div>
-                        <TabsContent value="all">
-                            <Card x-chunk="dashboard-06-chunk-0">
-                                <CardHeader>
-                                    <CardTitle>Members</CardTitle>
-                                    <CardDescription>
-                                        Manage members and view their informations.
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead>Name</TableHead>
-                                                <TableHead>Age</TableHead>
-                                                <TableHead className="hidden md:table-cell">
-                                                    Contact No.
-                                                </TableHead>
-                                                <TableHead className="hidden md:table-cell">
-                                                    Income
-                                                </TableHead>
-                                                <TableHead className="hidden md:table-cell">
-                                                    Gender
-                                                </TableHead>
-                                                <TableHead className="hidden md:table-cell">
-                                                    Date of Birth
-                                                </TableHead>
-                                                <TableHead className="hidden md:table-cell">
-                                                    Place of Birth
-                                                </TableHead>
-                                                <TableHead>
-                                                    <span className="sr-only">Actions</span>
-                                                </TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {loading
-                                                ? <TableRow>
-                                                    <TableCell > </TableCell>
-                                                    <TableCell > </TableCell>
-                                                    <TableCell > </TableCell>
-                                                    <TableCell>
-                                                        <LoaderCircle className=" h-12 w-12 animate-spin" />
-                                                    </TableCell>
-                                                </TableRow>
-                                                : tableRows}
-                                        </TableBody>
-                                    </Table>
-                                </CardContent>
-                                <CardFooter>
-                                    <div className="text-xs text-muted-foreground">
-                                        Showing <strong>{pageInfo.previous ? pageInfo.previous : 1}-{pageInfo.count}</strong> of <strong>{pageInfo.count}</strong> Members
-                                    </div>
-                                </CardFooter>
-                            </Card>
-                        </TabsContent>
-                    </Tabs>
-                </main>
+                <RecordTable
+                    page="members"
+                    pageAdj="Member"
+                    columns={columns}
+                    tableRows={tableRows}
+                    pageInfo={pageInfo}
+                    loading={loading}
+                    onAddButtonHandler={addButtonHandler}
+                />
             </div>
         </div>
     )

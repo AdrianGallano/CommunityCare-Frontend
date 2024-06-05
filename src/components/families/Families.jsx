@@ -16,11 +16,16 @@ import { Button } from "@/components/ui/button"
 import {
     MoreHorizontal,
 } from "lucide-react"
+import FamiliesForm from "./FamilesForm"
+
 
 export default function Families() {
     const [families, setFamilies] = useState([])
     const [pageInfo, setPageInfo] = useState({})
     const [loading, setLoading] = useState(false)
+    const [isPopupOpen, setIsPopupOpen] = useState(false)
+
+
     const columns = ["Family Name", "Household Income", "No. of Family Members", "Address", "Coordinates", "Actions"]
     const tableRows = families.map((family) =>
         <TableRow name={family.id} key={family.id} >
@@ -75,15 +80,19 @@ export default function Families() {
         AsyncFetch()
     }, [])
 
-    function addButtonHandler(){
-        console.log("CLICK")
+    function addButtonHandler() {
+        setIsPopupOpen(true)
     }
 
+    function onClosePopup() {
+        setIsPopupOpen(false)
+    }
 
     return (
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
             <Sidebar page="families" />
             <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
+                {isPopupOpen && <FamiliesForm isOpen={isPopupOpen} onClose={onClosePopup} />}
                 <RecordTable
                     page="families"
                     pageAdj="Family"

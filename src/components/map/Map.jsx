@@ -90,7 +90,7 @@ function GeocoderControl() {
 }
 
 export default function Map() {
-    const [families, setFamilies] = useState({});
+    const [families, setFamilies] = useState([]);
     const { BaseLayer } = LayersControl;
     const mapRef = useRef(null)
 
@@ -103,6 +103,7 @@ export default function Map() {
         []
     );
 
+
     useEffect(() => {
         const AsyncFetch = async () => {
             const data = await dataFetch("/families?page_size=10000", "GET");
@@ -110,6 +111,17 @@ export default function Map() {
         };
         AsyncFetch();
     }, []);
+
+    const marks = families.map((family) => {
+        const familyCoordinates = family.location.coordinates.split(", ")
+        return <Marker
+            key={family.id}
+            position={[familyCoordinates[0], familyCoordinates[1]]}
+            icon={icon}
+        >
+        </Marker>
+    })
+
 
     return (
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -151,6 +163,10 @@ export default function Map() {
                                         </BaseLayer>
                                         <ZoomControl position="topleft" />
                                     </LayersControl>
+                                    <MarkerClusterGroup>
+                                        {marks}
+                                    </MarkerClusterGroup>
+
                                     <GeocoderControl />
                                     <LocationMarker />
                                 </MapContainer>

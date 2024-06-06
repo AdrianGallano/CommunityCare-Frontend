@@ -4,6 +4,8 @@ import Sidebar from "../sidebar/Sidebar";
 import React, { useMemo, useState, useRef, useEffect } from "react";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import L from "leaflet";
+
+// Geocoder
 import 'leaflet-control-geocoder/dist/Control.Geocoder.css';
 import 'leaflet-control-geocoder/dist/Control.Geocoder.js';
 
@@ -32,13 +34,12 @@ import {
 function LocationMarker() {
     const [position, setPosition] = useState(null);
 
+        
     const map = useMapEvents({
         click() {
             map.locate()
-            console.log("CLICKED")
         },
         locationfound(e) {
-            console.log("LOCATED")
             setPosition(e.latlng)
             map.flyTo(e.latlng, 15)
         },
@@ -113,7 +114,7 @@ export default function Map() {
     }, []);
 
     const marks = families.map((family) => {
-        const familyCoordinates = family.location.coordinates.split(", ")
+        const familyCoordinates = family.coordinates.split(", ")
         return <Marker
             key={family.id}
             position={[familyCoordinates[0], familyCoordinates[1]]}

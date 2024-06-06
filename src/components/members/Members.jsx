@@ -58,14 +58,20 @@ export default function Members() {
     useEffect(() => {
         const AsyncFetch = async () => {
             setLoading(true)
-            const data = await dataFetch("/members?page_size=10", "GET")
-            setMembers(data.results)
-            setPageInfo({
-                "count": data.count,
-                "previous": data.previous,
-                "next": data.next
-            })
-            setLoading(false)
+
+            try{
+                const data = await dataFetch("/members?page_size=10", "GET")
+                setMembers(data.results)
+                setPageInfo({
+                    "count": data.count,
+                    "previous": data.previous,
+                    "next": data.next
+                })
+            }catch(e){
+                console.log(e)
+            }finally{
+                setLoading(false)
+            }
         }
         AsyncFetch()
     }, [])

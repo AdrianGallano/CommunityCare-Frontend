@@ -1,6 +1,7 @@
 import {
     PlusCircle,
-    LoaderCircle
+    LoaderCircle,
+    Box
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -35,8 +36,8 @@ import Header from "../header/Header"
 export default function RecordTable({ page, pageAdj, columns, tableRows, pageInfo, loading, onAddButtonHandler }) {
 
     const tableColumns = columns.map((column, index) => {
-        return index == 0 || index == columns.length - 2 ? 
-        <TableHead key={index}>{column}</TableHead> :
+        return index == 0 || index == columns.length - 2 ?
+            <TableHead key={index}>{column}</TableHead> :
             index == columns.length - 1 ?
                 <TableHead key={index}> <span className="sr-only">{column}</span> </TableHead> :
                 <TableHead key={index} className="hidden md:table-cell">
@@ -84,7 +85,12 @@ export default function RecordTable({ page, pageAdj, columns, tableRows, pageInf
                                                 <LoaderCircle className="m-auto h-12 w-12 animate-spin" />
                                             </TableCell>
                                         </TableRow>
-                                        : tableRows}
+                                        : tableRows.length == 0 ? 
+                                        <TableRow>
+                                            <TableCell className="scroll-m-20 border-b py-12 tracking-tight first:mt-0 text-center" colSpan="100%">
+                                                <p className="text-sm font-semibold text-gray-500">No {pageAdj} Record Exist</p>
+                                            </TableCell>
+                                            </TableRow> : tableRows}
                                 </TableBody>
                             </Table>
                         </CardContent>

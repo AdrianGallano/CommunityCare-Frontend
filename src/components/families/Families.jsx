@@ -17,14 +17,25 @@ import {
     MoreHorizontal,
 } from "lucide-react"
 import FamiliesForm from "./FamilesForm"
-
+import { Toaster, toast } from "sonner"
 
 export default function Families() {
     const [families, setFamilies] = useState([])
     const [pageInfo, setPageInfo] = useState({})
     const [loading, setLoading] = useState(false)
     const [isPopupOpen, setIsPopupOpen] = useState(false)
+    const [familyData, setFamilyData] = useState({
+        title: "",
+        no_of_members: "",
+        duration_of_residence: "",
+        total_family_income: "",
+        address: "",
+        coordinates: "14.834221447411265, 120.28504192829134",
+    })
+    console.log("RENDERED", familyData)
 
+    const [dialogData, setDialogData] = useState(null)
+    const [submitEventMethod, setSubmitEventMethod] = useState(null)
 
     const columns = ["Family Name", "Household Income", "No. of Family Members", "Address", "Coordinates", "Actions"]
     const tableRows = families.map((family) =>
@@ -39,10 +50,10 @@ export default function Families() {
                 {family.no_of_members}
             </TableCell>
             <TableCell className="hidden md:table-cell">
-                {family.location.address}
+                {family.address}
             </TableCell>
             <TableCell className="font-medium">
-                {family.location.coordinates}
+                {family.coordinates}
             </TableCell>
             <TableCell>
                 <DropdownMenu>
@@ -57,7 +68,7 @@ export default function Families() {
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => editButtonHandler(family.id)} >Edit</DropdownMenuItem>
                         <DropdownMenuItem>Delete</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -65,22 +76,48 @@ export default function Families() {
         </TableRow>
     )
 
+    /* Effects */
+
     useEffect(() => {
-        const AsyncFetch = async () => {
-            setLoading(true)
-            const data = await dataFetch("/families?page_size=10", "GET")
-            setFamilies(data.results)
-            setPageInfo({
-                "count": data.count,
-                "previous": data.previous,
-                "next": data.next
-            })
-            setLoading(false)
-        }
-        AsyncFetch()
+        asyncFetchFamilies();
     }, [])
 
+    /* End Effects */
+
+    /* Handlers */
+
+    async function editButtonHandler(familyId) {
+        setSubmitEventMethod("PUT")
+        await asyncFetchFamily(familyId)
+        setDialogData({
+            title: "Update Family",
+            description: "Make modifications to the families record here. Click save when you're done."
+        })
+        setIsPopupOpen(true)
+    }
+
+    function deleteButtonHandler(familyId) {
+
+        setIsPopupOpen(true)
+    }
+
     function addButtonHandler() {
+        setSubmitEventMethod("POST")
+        setFamilyData({
+            id: "",
+            title: "",
+            no_of_members: "",
+            duration_of_residence: "",
+            total_family_income: "",
+            address: "",
+            coordinates: "14.834221447411265, 120.28504192829134",
+        })
+
+        setDialogData({
+            title: "Add Family",
+            description: "Make additions to the families record here. Click save when you're done."
+        })
+
         setIsPopupOpen(true)
     }
 
@@ -88,11 +125,138 @@ export default function Families() {
         setIsPopupOpen(false)
     }
 
+
+    function toggleToast(title) {
+        toast(title, {
+            description: "Sunday, December 03, 2023 at 9:00 AM",
+            action: {
+                label: "Close",
+                onClick: () => console.log("Closed"),
+            },
+        })
+    }
+
+    function onFamilyDataChange(e) {
+        setFamilyData((prevFamilyData) => {
+            const { name, value } = e.target
+            return { ...prevFamilyData, [name]: value }
+        })
+    }
+
+    async function onFamiliesDataSubmit() {
+        setLoading(true)
+        try {
+            if (submitEventMethod == "POST") {
+                await asyncCreateFamily()
+                toggleToast("Family record has been created")
+            } else {
+                toggleToast("Family record has been updated")
+                await asyncUpdateFamily()
+            }
+
+        } catch (e) {
+            console.log(e)
+        } finally {
+            setLoading(false)
+            onClosePopup()
+            asyncFetchFamilies()
+        }
+    }
+
+    function handleMapClick(newCoordinates) {
+        setFamilyData((prevFamilyData) => {
+            return { ...prevFamilyData, coordinates: newCoordinates }
+        })
+    }
+
+    /* End Handlers */
+
+
+    /* Fetching */
+    const asyncFetchFamilies = async () => {
+        setLoading(true)
+        try {
+            const data = await dataFetch("/families?page_size=10", "GET")
+            setFamilies(data.results)
+            setPageInfo({
+                "count": data.count,
+                "previous": data.previous,
+                "next": data.next
+            })
+        } catch (e) {
+            console.log(e)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    async function asyncFetchFamily(familyId) {
+        setLoading(true)
+        try {
+            const data = await dataFetch(`/families/${familyId}`, "GET");
+            setFamilyData(data)
+        } catch (e) {
+            console.log(e)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    async function asyncUpdateFamily() {
+        console.log(familyData)
+        setLoading(true)
+        try {
+            const data = await dataFetch(`/families/${familyData.id}`, "PUT", familyData);
+            setFamilyData(data)
+        } catch (e) {
+            console.log(e)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    async function asyncDeletefamily() {
+        console.log(familyData)
+        setLoading(true)
+        try {
+            await dataFetch(`/families/${familyData.id}`, "DELETE");
+        } catch (e) {
+            console.log(e)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    async function asyncCreateFamily() {
+        setLoading(true)
+        try {
+            await dataFetch("/families", "POST", familyData);
+        } catch (e) {
+            console.log(e)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    /* End Fetching */
+
     return (
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
+            <Toaster />
+
             <Sidebar page="families" />
             <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
-                {isPopupOpen && <FamiliesForm isOpen={isPopupOpen} onClose={onClosePopup} />}
+                {isPopupOpen &&
+                    <FamiliesForm
+                        dialogData={dialogData}
+                        isLoading={loading}
+                        isOpen={isPopupOpen}
+                        onClose={onClosePopup}
+                        family={familyData}
+                        onFamilyDataChange={onFamilyDataChange}
+                        onFamiliesDataSubmit={onFamiliesDataSubmit}
+                        handleMapClick={handleMapClick}
+                    />}
                 <RecordTable
                     page="families"
                     pageAdj="Family"

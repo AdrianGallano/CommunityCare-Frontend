@@ -32,7 +32,6 @@ export default function Families() {
         address: "",
         coordinates: "14.834221447411265, 120.28504192829134",
     })
-    console.log("RENDERED", familyData)
 
     const [dialogData, setDialogData] = useState(null)
     const [submitEventMethod, setSubmitEventMethod] = useState(null)
@@ -203,7 +202,6 @@ export default function Families() {
     }
 
     async function asyncUpdateFamily() {
-        console.log(familyData)
         setLoading(true)
         try {
             const data = await dataFetch(`/families/${familyData.id}`, "PUT", familyData);
@@ -216,7 +214,6 @@ export default function Families() {
     }
 
     async function asyncDeletefamily() {
-        console.log(familyData)
         setLoading(true)
         try {
             await dataFetch(`/families/${familyData.id}`, "DELETE");

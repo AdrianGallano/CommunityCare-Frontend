@@ -16,7 +16,8 @@ import {
     LayersControl,
     ZoomControl,
     useMapEvents,
-    useMap, Popup
+    useMap, Popup,
+    Tooltip
 
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -31,10 +32,19 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog"
+
 function LocationMarker() {
     const [position, setPosition] = useState(null);
 
-        
+
     const map = useMapEvents({
         click() {
             map.locate()
@@ -43,6 +53,9 @@ function LocationMarker() {
             setPosition(e.latlng)
             map.flyTo(e.latlng, 15)
         },
+        mouseover() {
+
+        }
     })
     return position === null ? null : (
         <Marker position={position}>
@@ -51,10 +64,11 @@ function LocationMarker() {
     )
 }
 
-function GetCurrentUserLocation() {
+/* function GetCurrentUserLocation() {
     const [position, setPosition] = useState(null);
     const [bbox, setBbox] = useState([]);
-}
+    
+} */
 
 function GeocoderControl() {
     const map = useMap();
@@ -94,7 +108,8 @@ export default function Map() {
     const [families, setFamilies] = useState([]);
     const { BaseLayer } = LayersControl;
     const mapRef = useRef(null)
-
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
+    
     const icon = useMemo(
         () =>
             new Icon({
@@ -103,7 +118,6 @@ export default function Map() {
             }),
         []
     );
-
 
     useEffect(() => {
         const AsyncFetch = async () => {
@@ -119,10 +133,33 @@ export default function Map() {
             key={family.id}
             position={[familyCoordinates[0], familyCoordinates[1]]}
             icon={icon}
+            eventHandlers={{
+                click() {
+                    openPopup()
+                }
+            }}
         >
+
+            <Tooltip minWidth={90}>
+                <p>Family name: {family.title}</p>
+                <p>Address: {family.address}</p>
+                <p>Coordinates: {family.coordinates}</p>
+                <p>No. of members: {family.no_of_members}</p>
+                <p>Total family income: {family.total_family_income}</p>
+                <p>Duration of residence: {family.duration_of_residence}</p>
+                <p className="text-blue-500">click pin to see more.</p>
+            </Tooltip>
+
         </Marker>
     })
 
+    function openPopup(){
+        setIsPopupOpen(true)
+    }
+
+    function closePopup(){
+        setIsPopupOpen(false)
+    }
 
     return (
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -167,7 +204,6 @@ export default function Map() {
                                     <MarkerClusterGroup>
                                         {marks}
                                     </MarkerClusterGroup>
-
                                     <GeocoderControl />
                                     <LocationMarker />
                                 </MapContainer>
@@ -175,6 +211,16 @@ export default function Map() {
                         </CardContent>
                     </Card>
                 </main>
+                <Dialog open={isPopupOpen} onOpenChange={closePopup}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>More Info Here</DialogTitle>
+                            <DialogDescription>
+                                Feature to be continued.
+                            </DialogDescription>
+                        </DialogHeader>
+                    </DialogContent>
+                </Dialog>
             </div>
         </div>
     );

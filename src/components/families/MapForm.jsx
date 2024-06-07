@@ -71,6 +71,7 @@ export default function MapForm({handleMapClick, coordinates}) {
             <GeocoderControl />
             <LocationMarker /> */}
         </MapContainer>
+        
     )
 }
 

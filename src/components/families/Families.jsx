@@ -16,8 +16,20 @@ import { Button } from "@/components/ui/button"
 import {
     MoreHorizontal,
 } from "lucide-react"
-import FamiliesForm from "./FamilesForm"
+import PopupFamilyForm from "./PopupFamilyForm"
 import { Toaster, toast } from "sonner"
+
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 export default function Families() {
     const [families, setFamilies] = useState([])
@@ -35,7 +47,9 @@ export default function Families() {
 
     const [dialogData, setDialogData] = useState(null)
     const [submitEventMethod, setSubmitEventMethod] = useState(null)
+    const [isDeleteDialogOpen, setDeleteIsDialogOpen] = useState(null)
 
+    /* Component Creation */
     const columns = ["Family Name", "Household Income", "No. of Family Members", "Address", "Coordinates", "Actions"]
     const tableRows = families.map((family) =>
         <TableRow name={family.id} key={family.id} >
@@ -67,13 +81,16 @@ export default function Families() {
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => editButtonHandler(family.id)} >Edit</DropdownMenuItem>
-                        <DropdownMenuItem>Delete</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => editButtonHandler(family.id)}>Edit</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => openDeletePopup(family.id)}>Delete</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </TableCell>
         </TableRow>
     )
+
+    /* End Component Creation */
+
 
     /* Effects */
 
@@ -83,57 +100,7 @@ export default function Families() {
 
     /* End Effects */
 
-    /* Handlers */
-
-    async function editButtonHandler(familyId) {
-        setSubmitEventMethod("PUT")
-        await asyncFetchFamily(familyId)
-        setDialogData({
-            title: "Update Family",
-            description: "Make modifications to the families record here. Click save when you're done."
-        })
-        setIsPopupOpen(true)
-    }
-
-    function deleteButtonHandler(familyId) {
-
-        setIsPopupOpen(true)
-    }
-
-    function addButtonHandler() {
-        setSubmitEventMethod("POST")
-        setFamilyData({
-            id: "",
-            title: "",
-            no_of_members: "",
-            duration_of_residence: "",
-            total_family_income: "",
-            address: "",
-            coordinates: "14.834221447411265, 120.28504192829134",
-        })
-
-        setDialogData({
-            title: "Add Family",
-            description: "Make additions to the families record here. Click save when you're done."
-        })
-
-        setIsPopupOpen(true)
-    }
-
-    function onClosePopup() {
-        setIsPopupOpen(false)
-    }
-
-
-    function toggleToast(title) {
-        toast(title, {
-            description: "Sunday, December 03, 2023 at 9:00 AM",
-            action: {
-                label: "Close",
-                onClick: () => console.log("Closed"),
-            },
-        })
-    }
+    /* Events */
 
     function onFamilyDataChange(e) {
         setFamilyData((prevFamilyData) => {
@@ -161,6 +128,78 @@ export default function Families() {
             asyncFetchFamilies()
         }
     }
+
+    function onClosePopup() {
+        setIsPopupOpen(false)
+    }
+
+    async function onFamiliesDataDelete() {
+        setLoading(true)
+        try {
+            await asyncDeletefamily()
+            toggleToast("Family record has been deleted")
+        } catch (e) {
+            console.log(e)
+        } finally {
+            setLoading(false)
+            closeDeletePopup()
+            asyncFetchFamilies()
+        }
+    }
+
+    /* End Events */
+
+    /* Handlers */
+
+    async function editButtonHandler(familyId) {
+        setSubmitEventMethod("PUT")
+        await asyncFetchFamily(familyId)
+        setDialogData({
+            title: "Update Family",
+            description: "Make modifications to the families record here. Click save when you're done."
+        })
+        setIsPopupOpen(true)
+    }
+
+    async function openDeletePopup(familyId) {
+        await asyncFetchFamily(familyId)
+        setDeleteIsDialogOpen(true)
+    }
+
+    async function closeDeletePopup(familyId) {
+        setDeleteIsDialogOpen(false)
+    }
+
+    function addButtonHandler() {
+        setSubmitEventMethod("POST")
+        setFamilyData({
+            id: "",
+            title: "",
+            no_of_members: "",
+            duration_of_residence: "",
+            total_family_income: "",
+            address: "",
+            coordinates: "14.834221447411265, 120.28504192829134",
+        })
+
+        setDialogData({
+            title: "Add Family",
+            description: "Make additions to the families record here. Click save when you're done."
+        })
+
+        setIsPopupOpen(true)
+    }
+
+    function toggleToast(title) {
+        toast(title, {
+            description: "Sunday, December 03, 2023 at 9:00 AM",
+            action: {
+                label: "Close",
+                onClick: () => console.log("Closed"),
+            },
+        })
+    }
+
 
     function handleMapClick(newCoordinates) {
         setFamilyData((prevFamilyData) => {
@@ -243,8 +282,23 @@ export default function Families() {
 
             <Sidebar page="families" />
             <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
+                <AlertDialog open={isDeleteDialogOpen} onOpenChange={closeDeletePopup} >
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                This action cannot be undone. This will permanently delete this
+                                family and remove your data from our servers.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={onFamiliesDataDelete}>Continue</AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
                 {isPopupOpen &&
-                    <FamiliesForm
+                    <PopupFamilyForm
                         dialogData={dialogData}
                         isLoading={loading}
                         isOpen={isPopupOpen}

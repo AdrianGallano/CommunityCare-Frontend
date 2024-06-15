@@ -14,8 +14,6 @@ import {
 import PinIcon from "../../assets/pin.png";
 import { Icon } from "leaflet";
 
-
-
 export default function MapForm({handleMapClick, coordinates}) {
     const { BaseLayer } = LayersControl;
     const icon = useMemo(

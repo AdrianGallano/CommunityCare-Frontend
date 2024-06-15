@@ -20,7 +20,7 @@ import "leaflet/dist/leaflet.css";
 import { LoaderCircle, LocateFixed } from "lucide-react";
 import MapForm from "./MapForm";
 
-export default function FamiliesForm({ dialogData, isLoading, isOpen, onClose, family, onFamilyDataChange, onFamiliesDataSubmit, handleMapClick }) {
+export default function PopupFamilyForm({ dialogData, isLoading, isOpen, onClose, family, onFamilyDataChange, onFamiliesDataSubmit, handleMapClick }) {
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-[800px]">

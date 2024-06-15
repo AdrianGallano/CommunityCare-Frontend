@@ -1,6 +1,5 @@
 import PinIcon from "../../assets/pin.png";
 import { Icon } from "leaflet";
-import Sidebar from "../sidebar/Sidebar";
 import React, { useMemo, useState, useRef, useEffect } from "react";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import L from "leaflet";
@@ -21,27 +20,8 @@ import {
 
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import dataFetch from "../../services/api";
-import Header from "../header/Header";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
 
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog"
-
-function LocationMarker() {
+function GoToLocation() {
     const [position, setPosition] = useState(null);
 
 
@@ -54,7 +34,6 @@ function LocationMarker() {
             map.flyTo(e.latlng, 15)
         },
         mouseover() {
-
         }
     })
     return position === null ? null : (
@@ -64,13 +43,7 @@ function LocationMarker() {
     )
 }
 
-/* function GetCurrentUserLocation() {
-    const [position, setPosition] = useState(null);
-    const [bbox, setBbox] = useState([]);
-    
-} */
-
-function GeocoderControl() {
+function SearchLocation() {
     const map = useMap();
 
     useEffect(() => {
@@ -79,10 +52,6 @@ function GeocoderControl() {
             geocoder,
             defaultMarkGeocode: false,
         }).addTo(map);
-
-        control.on('markgeocode', function (e) {
-            console.log(e)
-        })
 
         control.on('markgeocode', function (e) {
             const bbox = e.geocode.bbox;
@@ -104,12 +73,48 @@ function GeocoderControl() {
     return null
 }
 
-export default function Map() {
-    const [families, setFamilies] = useState([]);
+function fetchMarkerData(data, tooltipDataLabel, icon, onMarkerClickEvent = null) {
+    /* 
+    @data 
+    @tooltipDataLabel 
+    @icon 
+    @onMarkerClickEvent:optional -> markers might not have a click event
+    */
+    
+    return data.map((row) => {
+        const familyCoordinates = row.coordinates.split(", ")
+        const columns = Object.values(row).slice(1)
+
+
+        const tooltipData = columns.map((value, index) => {
+            return <p key={index} >{tooltipDataLabel[index]} {value}</p>
+        })
+
+        return <Marker
+            key={row.id}
+            position={[familyCoordinates[0], familyCoordinates[1]]}
+            icon={icon}
+            eventHandlers={onMarkerClickEvent && {
+                click() {
+                    onMarkerClickEvent()
+                }
+            }}
+        >
+
+            <Tooltip minWidth={90}>
+                {tooltipData}
+                <p className="text-blue-500">click pin to see more.</p>
+            </Tooltip>
+
+        </Marker>
+    })
+}
+
+
+export default function Map({ data, openDialogPopup, tooltipDataLabel }) {
     const { BaseLayer } = LayersControl;
     const mapRef = useRef(null)
-    const [isPopupOpen, setIsPopupOpen] = useState(false);
-    
+
     const icon = useMemo(
         () =>
             new Icon({
@@ -119,109 +124,40 @@ export default function Map() {
         []
     );
 
-    useEffect(() => {
-        const AsyncFetch = async () => {
-            const data = await dataFetch("/families?page_size=10000", "GET");
-            setFamilies(data.results);
-        };
-        AsyncFetch();
-    }, []);
 
-    const marks = families.map((family) => {
-        const familyCoordinates = family.coordinates.split(", ")
-        return <Marker
-            key={family.id}
-            position={[familyCoordinates[0], familyCoordinates[1]]}
-            icon={icon}
-            eventHandlers={{
-                click() {
-                    openPopup()
-                }
-            }}
-        >
-
-            <Tooltip minWidth={90}>
-                <p>Family name: {family.title}</p>
-                <p>Address: {family.address}</p>
-                <p>Coordinates: {family.coordinates}</p>
-                <p>No. of members: {family.no_of_members}</p>
-                <p>Total family income: {family.total_family_income}</p>
-                <p>Duration of residence: {family.duration_of_residence}</p>
-                <p className="text-blue-500">click pin to see more.</p>
-            </Tooltip>
-
-        </Marker>
-    })
-
-    function openPopup(){
-        setIsPopupOpen(true)
-    }
-
-    function closePopup(){
-        setIsPopupOpen(false)
-    }
+    const markers = data ? fetchMarkerData(data, tooltipDataLabel, icon, openDialogPopup) : null
 
     return (
-        <div className="flex min-h-screen w-full flex-col bg-muted/40">
-            <Sidebar page="map" />
-            <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
-                <Header page="map" />
-                <main className="h-screen w-full z-0 relative">
-                    <Card className="mx-4">
-                        <CardHeader>
-                            <CardTitle>Map Overview</CardTitle>
-                            <CardDescription>
-                                Get an overview of your community information.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="h-screen flex justify-center">
-                                <MapContainer
-                                    center={[14.831583808890002, 120.28337295677551]}
-                                    zoom={15}
-                                    scrollWheelZoom={true}
-                                    zoomControl={false}
-                                    className="h-3/4 w-full"
-                                    ref={mapRef}
-                                >
-                                    <LayersControl position="bottomright">
-                                        <BaseLayer checked name="OpenStreetMap View">
-                                            <TileLayer
-                                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                                                url="http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
-                                                subdomains={["mt0", "mt1", "mt2", "mt3"]}
-                                            />
-                                        </BaseLayer>
-                                        <BaseLayer name="Hybrid View">
-                                            <TileLayer
-                                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                                                url="http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}"
-                                                subdomains={["mt0", "mt1", "mt2", "mt3"]}
-                                            />
-                                        </BaseLayer>
-                                        <ZoomControl position="topleft" />
-                                    </LayersControl>
-                                    <MarkerClusterGroup>
-                                        {marks}
-                                    </MarkerClusterGroup>
-                                    <GeocoderControl />
-                                    <LocationMarker />
-                                </MapContainer>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </main>
-                <Dialog open={isPopupOpen} onOpenChange={closePopup}>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>More Info Here</DialogTitle>
-                            <DialogDescription>
-                                Feature to be continued.
-                            </DialogDescription>
-                        </DialogHeader>
-                    </DialogContent>
-                </Dialog>
-            </div>
-        </div>
+        <MapContainer
+            center={[14.831583808890002, 120.28337295677551]}
+            zoom={15}
+            scrollWheelZoom={true}
+            zoomControl={false}
+            className="h-3/4 w-full"
+            ref={mapRef}
+        >
+            <LayersControl position="bottomright">
+                <BaseLayer checked name="OpenStreetMap View">
+                    <TileLayer
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                        url="http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
+                        subdomains={["mt0", "mt1", "mt2", "mt3"]}
+                    />
+                </BaseLayer>
+                <BaseLayer name="Hybrid View">
+                    <TileLayer
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                        url="http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}"
+                        subdomains={["mt0", "mt1", "mt2", "mt3"]}
+                    />
+                </BaseLayer>
+                <ZoomControl position="topleft" />
+            </LayersControl>
+            <MarkerClusterGroup>
+                {markers}
+            </MarkerClusterGroup>
+            <SearchLocation />
+            <GoToLocation />
+        </MapContainer>
     );
 }

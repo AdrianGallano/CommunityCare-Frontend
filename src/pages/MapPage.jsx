@@ -35,7 +35,7 @@ export default function MapPage() {
     
     useEffect(() => {
         const AsyncFetch = async () => {
-            const data = await dataFetch("/families?page_size=10000", "GET");
+            const data = await dataFetch("api/families?page_size=10000", "GET");
             setFamilies(data.results);
         };
         AsyncFetch();

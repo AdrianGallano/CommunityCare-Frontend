@@ -15,27 +15,31 @@ import {
 } from "@/components/ui/alert"
 
 export default function LoginForm() {
-    const navigate = useNavigate();
     const [userData, setUserData] = useState({
         "username": "",
         "password": ""
     })
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(false)
+    const navigate = useNavigate()
 
     async function handleButtonClick(e) {
         e.preventDefault()
         setLoading(true)
+        setError(false)
         try {
-            const data = await dataFetch("token/", "POST", userData)
+            const data = await dataFetch("api/token/", "POST", userData)
             localStorage.setItem("access", data.access)
             localStorage.setItem("refresh", data.refresh)
-            setLoading(false)
+
+            window.dispatchEvent(new Event("storage"));
+
             navigate("/dashboard")
         } catch (e) {
-            setLoading(false)
             setError(true)
             console.log(e.message)
+        } finally {
+            setLoading(false)
         }
     }
 

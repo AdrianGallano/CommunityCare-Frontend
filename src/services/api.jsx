@@ -1,25 +1,27 @@
 import axios from "axios"
 
-const token = localStorage.getItem("access")
 const headers = {
     "Content-Type": "application/json",
 }
 
-if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-}
-
 const api = axios.create({
-    baseURL: "http://127.0.0.1:8000/api/",
-    headers: headers,
+    baseURL: "http://127.0.0.1:8000/",
 })
 
+
 export default async function dataFetch(endpoint, method = "GET", data = null, config = {}) {
+    let token = localStorage.getItem("access")
+    
+    if (token && !headers["Authorization"]) {
+        headers["Authorization"] = `Bearer ${token}`;
+    }
+
     try {
         const response = await api.request({
             url: endpoint,
             method,
             data,
+            headers: headers,
             ...config,
         });
         return response.data;

@@ -214,7 +214,7 @@ export default function Families() {
     const asyncFetchFamilies = async () => {
         setLoading(true)
         try {
-            const data = await dataFetch("/families?page_size=10", "GET")
+            const data = await dataFetch("api/families?page_size=10", "GET")
             setFamilies(data.results)
             setPageInfo({
                 "count": data.count,
@@ -231,7 +231,7 @@ export default function Families() {
     async function asyncFetchFamily(familyId) {
         setLoading(true)
         try {
-            const data = await dataFetch(`/families/${familyId}`, "GET");
+            const data = await dataFetch(`api/families/${familyId}`, "GET");
             setFamilyData(data)
         } catch (e) {
             console.log(e)
@@ -243,7 +243,7 @@ export default function Families() {
     async function asyncUpdateFamily() {
         setLoading(true)
         try {
-            const data = await dataFetch(`/families/${familyData.id}`, "PUT", familyData);
+            const data = await dataFetch(`api/families/${familyData.id}`, "PUT", familyData);
             setFamilyData(data)
         } catch (e) {
             console.log(e)
@@ -255,7 +255,7 @@ export default function Families() {
     async function asyncDeletefamily() {
         setLoading(true)
         try {
-            await dataFetch(`/families/${familyData.id}`, "DELETE");
+            await dataFetch(`api/families/${familyData.id}`, "DELETE");
         } catch (e) {
             console.log(e)
         } finally {
@@ -266,7 +266,7 @@ export default function Families() {
     async function asyncCreateFamily() {
         setLoading(true)
         try {
-            await dataFetch("/families", "POST", familyData);
+            await dataFetch("api/families", "POST", familyData);
         } catch (e) {
             console.log(e)
         } finally {

@@ -60,7 +60,7 @@ export default function Members() {
             setLoading(true)
 
             try{
-                const data = await dataFetch("/members?page_size=10", "GET")
+                const data = await dataFetch("api/members?page_size=10", "GET")
                 setMembers(data.results)
                 setPageInfo({
                     "count": data.count,

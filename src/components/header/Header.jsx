@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { User } from "lucide-react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import {
     Search,
     Home,
@@ -35,6 +35,7 @@ import {
 
 export default function Header({ page }) {
     const mobileDefaultStyle = "flex items-center gap-4 px-2.5 "
+    const navigate = useNavigate()
 
     const iconState = {
         dashboard: mobileDefaultStyle,
@@ -48,6 +49,15 @@ export default function Header({ page }) {
     for (let icon in iconState) {
         if (page == icon) iconState[icon] += " text-foreground"
         else iconState[icon] += " text-muted-foreground hover:text-foreground"
+    }
+
+    function logout() {
+        localStorage.removeItem("access")
+        localStorage.removeItem("refresh")
+        localStorage.removeItem("username")
+        localStorage.removeItem("email")
+        localStorage.removeItem("id")
+        navigate("/login")
     }
 
     return (
@@ -145,7 +155,7 @@ export default function Header({ page }) {
                         <DropdownMenuItem>Settings</DropdownMenuItem>
                         <DropdownMenuItem>Support</DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>Logout</DropdownMenuItem>
+                        <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </header >

@@ -1,21 +1,23 @@
 
 
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import {
     MapContainer,
     TileLayer,
     Marker,
     LayersControl,
-    ZoomControl,
     useMapEvents,
-    useMap, Popup
 
 } from "react-leaflet";
 import PinIcon from "../../assets/pin.png";
 import { Icon } from "leaflet";
 
-export default function MapForm({handleMapClick, coordinates}) {
+export default function MapForm({ handleMapClick, coordinates }) {
+
+    /* when component is initialize find your current location */
+
     const { BaseLayer } = LayersControl;
+
     const icon = useMemo(
         () =>
             new Icon({
@@ -25,14 +27,30 @@ export default function MapForm({handleMapClick, coordinates}) {
         []
     );
 
+
+    function InitializeLocationToCurrentLocation() {
+        const map = useMapEvents({
+            locationfound(e) {
+                const { lat, lng } = e.latlng
+                handleMapClick(`${lat}, ${lng}`)
+            }
+        });
+
+        if (coordinates.every((item) => item === 0)) {
+            map.locate({ setView: true, maxZoom: 16 });
+        }
+
+        return null;
+    }
+
     function HandleMapEvent() {
         useMapEvents({
             click(e) {
-                const {lat, lng} = e.latlng
+                const { lat, lng } = e.latlng
                 handleMapClick(`${lat}, ${lng}`)
-            }
+            },
         })
-    
+
         return null
     }
 
@@ -42,7 +60,7 @@ export default function MapForm({handleMapClick, coordinates}) {
             zoom={15}
             scrollWheelZoom={true}
             zoomControl={false}
-            className="h-52 w-52"
+            className="h-56 w-56"
         >
             <LayersControl position="topright">
                 <BaseLayer checked name="OpenStreetMap View">
@@ -65,11 +83,12 @@ export default function MapForm({handleMapClick, coordinates}) {
             >
 
             </Marker>
+            <InitializeLocationToCurrentLocation />
             {/*             
             <GeocoderControl />
             <LocationMarker /> */}
         </MapContainer>
-        
+
     )
 }
 

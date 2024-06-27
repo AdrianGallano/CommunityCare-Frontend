@@ -31,7 +31,7 @@ export default function LoginForm({ handleButtonClick, handleOnChange, loading, 
                             <Input
                                 id="username"
                                 type="username"
-                                placeholder="AdrianMolino"
+                                placeholder="AdrianGallano"
                                 autoComplete="username"
                                 name="username"
                                 value={userData.username}

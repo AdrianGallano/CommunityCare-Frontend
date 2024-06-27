@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/popover"
 import "leaflet/dist/leaflet.css";
 import { LoaderCircle, LocateFixed } from "lucide-react";
-import MapForm from "./MapForm";
+import MapForm from "../map/MapForm";
 
 export default function PopupFamilyForm({ dialogData, isLoading, isOpen, onClose, family, onFamilyDataChange, onFamiliesDataSubmit, handleMapClick }) {
     return (
@@ -68,7 +68,7 @@ export default function PopupFamilyForm({ dialogData, isLoading, isOpen, onClose
                             name="coordinates"
                             className="col-span-2"
                             value={family.coordinates}
-                            placeholder="14.834231, 120.284988"
+                            placeholder="0, 0"
                             disabled
                         />
                         <div>
@@ -84,7 +84,7 @@ export default function PopupFamilyForm({ dialogData, isLoading, isOpen, onClose
                                             <em>Locate your coordinates here, click the map to change pin location.</em>
                                         </p>
                                         <MapForm handleMapClick={handleMapClick}
-                                            coordinates={family.coordinates.split(", ").map(coordinate => parseFloat(coordinate))} />
+                                            coordinates={family.coordinates == "" ? [0, 0] : family.coordinates.split(", ").map(coordinate => parseFloat(coordinate))} />
                                     </div>
                                 </PopoverContent>
                             </Popover>

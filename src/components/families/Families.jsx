@@ -50,7 +50,7 @@ export default function Families() {
     const [isDeleteDialogOpen, setDeleteIsDialogOpen] = useState(null)
 
     /* Component Creation */
-    const columns = ["Family Name", "Household Income", "No. of Family Members", "Address", "Coordinates", "Actions"]
+    const columns = ["Family Name", "Household Income", "No. of Family Members", "Coordinates","Address",  "Actions"]
     const tableRows = families.map((family) =>
         <TableRow name={family.id} key={family.id} >
             <TableCell className="font-medium">
@@ -63,10 +63,10 @@ export default function Families() {
                 {family.no_of_members}
             </TableCell>
             <TableCell className="hidden md:table-cell">
-                {family.address}
+                {family.coordinates}
             </TableCell>
             <TableCell className="font-medium">
-                {family.coordinates}
+                {family.address}
             </TableCell>
             <TableCell>
                 <DropdownMenu>

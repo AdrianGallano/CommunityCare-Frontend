@@ -124,7 +124,7 @@ export default function Header({ page }) {
                         </nav>
                     </SheetContent>
                 </Sheet>
-                <Breadcrumb className="hidden md:flex">
+                <Breadcrumb className="hidden sm:flex">
                     <BreadcrumbList>
                         <BreadcrumbItem>
                             <BreadcrumbLink asChild>

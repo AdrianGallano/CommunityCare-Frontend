@@ -1,11 +1,9 @@
-import { Link, useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 import CommunityImage from "../../assets/community.jpg"
-import { useState } from "react"
-import dataFetch from "../../services/api"
 import { LoaderCircle } from "lucide-react"
 import { AlertCircle } from "lucide-react"
 import {
@@ -14,42 +12,8 @@ import {
     AlertTitle,
 } from "@/components/ui/alert"
 
-export default function LoginForm() {
-    const [userData, setUserData] = useState({
-        "username": "",
-        "password": ""
-    })
-    const [loading, setLoading] = useState(false)
-    const [error, setError] = useState(false)
-    const navigate = useNavigate()
+export default function LoginForm({ handleButtonClick, handleOnChange, loading, userData, error }) {
 
-    async function handleButtonClick(e) {
-        e.preventDefault()
-        setLoading(true)
-        setError(false)
-        try {
-            const data = await dataFetch("api/token/", "POST", userData)
-            localStorage.setItem("access", data.access)
-            localStorage.setItem("refresh", data.refresh)
-
-            window.dispatchEvent(new Event("storage"));
-
-            navigate("/dashboard")
-        } catch (e) {
-            setError(true)
-            console.log(e.message)
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    function handleOnChange(e) {
-        const { name, value } = e.target
-
-        setUserData((prevUserData) => {
-            return { ...prevUserData, [name]: value }
-        })
-    }
 
     return (
         <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]">
@@ -70,6 +34,7 @@ export default function LoginForm() {
                                 placeholder="AdrianMolino"
                                 autoComplete="username"
                                 name="username"
+                                value={userData.username}
                                 onChange={handleOnChange}
                                 required
                             />
@@ -84,7 +49,12 @@ export default function LoginForm() {
                                     Forgot your password?
                                 </Link>
                             </div>
-                            <Input id="password" name="password" type="password" autoComplete="current-password" onChange={handleOnChange} required />
+                            <Input id="password" 
+                            name="password" 
+                            type="password" 
+                            autoComplete="current-password" 
+                            value={userData.password}
+                            onChange={handleOnChange} required />
                         </div>
                         {error &&
                             <Alert variant="destructive">

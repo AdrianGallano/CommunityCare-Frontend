@@ -1,6 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
 import './App.css'
-import LoginForm from "./components/auth/LoginForm"
+import LoginPage from './pages/LoginPage'
 import Unauthorized from './components/error/401'
 import PageNotFound from './components/error/404'
 import Dashboard from './components/dashboard/Dashboard'
@@ -13,7 +13,6 @@ import Families from './components/families/Families'
 import Members from './components/members/Members'
 import { AuthProvider } from './components/auth/AuthContext'
 import ProtectedRoute from './components/auth/ProtectedRoutes'
-import Loading from './components/loading/Loading'
 
 function App() {
 
@@ -21,7 +20,7 @@ function App() {
     <AuthProvider>
       <Routes>
         <Route exact path="/" element="" />
-        <Route path="/login" element={<LoginForm />} />
+        <Route path="/login" element={<LoginPage />} />
         <Route path="/401" element={<Unauthorized />} />
         <Route path="*" element={<PageNotFound />} />
         <Route element={<ProtectedRoute />}>

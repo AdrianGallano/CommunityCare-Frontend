@@ -1,29 +1,19 @@
 /* Components */
 import Sidebar from "../components/sidebar/Sidebar"
 import RecordTable from "../components/recordtable/RecordTable"
+import PopupFamilyForm from "../components/families/PopupFamilyForm"
+import LoadingPopUp from "../components/loading/LoadingPopUp"
+import TableFamilyRows from "../components/families/TableFamilyRows"
 
 /* Utils */
 import dataFetch from "../services/api"
 
 /* React  */
 import { useState, useEffect } from "react"
-import PopupFamilyForm from "../components/families/PopupFamilyForm"
 
 /* Shadcn Components */
-import {
-    TableCell,
-    TableRow,
-} from "@/components/ui/table"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Button } from "@/components/ui/button"
-import {
-    MoreHorizontal,
-} from "lucide-react"
+
+
 import { Toaster, toast } from "sonner"
 
 import {
@@ -35,14 +25,15 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-    AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import Loading from "../components/loading/Loading"
 
 
 export default function FamilyPage() {
     const [families, setFamilies] = useState([])
     const [pageInfo, setPageInfo] = useState({})
     const [loading, setLoading] = useState(false)
+    const [singleFetchLoading, setSingleFetchLoading] = useState(false)
     const [isPopupOpen, setIsPopupOpen] = useState(false)
     const [familyData, setFamilyData] = useState({
         title: "",
@@ -53,57 +44,17 @@ export default function FamilyPage() {
         coordinates: "",
     })
 
-
-
     const [dialogData, setDialogData] = useState(null)
     const [submitEventMethod, setSubmitEventMethod] = useState(null)
     const [isDeleteDialogOpen, setDeleteIsDialogOpen] = useState(null)
 
     /* Component Creation */
-    const columns = ["Family Name", "Household Income", "No. of Family Members", "Coordinates","Address",  "Actions"]
-    const tableRows = families.map((family) =>
-        <TableRow name={family.id} key={family.id} >
-            <TableCell className="font-medium">
-                {family.title}
-            </TableCell>
-            <TableCell className="hidden md:table-cell">
-                {family.total_family_income}
-            </TableCell>
-            <TableCell className="hidden md:table-cell">
-                {family.no_of_members}
-            </TableCell>
-            <TableCell className="hidden md:table-cell">
-                {family.coordinates}
-            </TableCell>
-            <TableCell className="font-medium">
-                {family.address}
-            </TableCell>
-            <TableCell>
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button
-                            aria-haspopup="true"
-                            size="icon"
-                            variant="ghost"
-                        >
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Toggle menu</span>
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => editButtonHandler(family.id)}>Edit</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => openDeletePopup(family.id)}>Delete</DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            </TableCell>
-        </TableRow>
-    )
-
+    const columns = ["Family Name", 
+        "Household Income", "No. of Family Members", 
+        "Coordinates", "Address", "Actions"]
     /* End Component Creation */
 
-
     /* Effects */
-
     useEffect(() => {
         asyncFetchFamilies();
     }, [])
@@ -159,7 +110,7 @@ export default function FamilyPage() {
 
     /* End Events */
 
-    /* Handlers */
+    /* Actions */
 
     async function editButtonHandler(familyId) {
         setSubmitEventMethod("PUT")
@@ -176,7 +127,7 @@ export default function FamilyPage() {
         setDeleteIsDialogOpen(true)
     }
 
-    async function closeDeletePopup(familyId) {
+    async function closeDeletePopup() {
         setDeleteIsDialogOpen(false)
     }
 
@@ -212,17 +163,26 @@ export default function FamilyPage() {
 
 
     function handleMapClick(newCoordinates) {
-        console.log("MAPCLICKED")
-        console.log(newCoordinates)
         setFamilyData((prevFamilyData) => {
             return { ...prevFamilyData, coordinates: newCoordinates }
         })
     }
 
-    /* End Handlers */
+    /* End Actions */
 
 
     /* Fetching */
+    async function asyncCreateFamily() {
+        setLoading(true)
+        try {
+            await dataFetch("api/families", "POST", familyData);
+        } catch (e) {
+            console.log(e)
+        } finally {
+            setLoading(false)
+        }
+    }
+
     const asyncFetchFamilies = async () => {
         setLoading(true)
         try {
@@ -241,14 +201,14 @@ export default function FamilyPage() {
     }
 
     async function asyncFetchFamily(familyId) {
-        setLoading(true)
         try {
+            setSingleFetchLoading(true)
             const data = await dataFetch(`api/families/${familyId}`, "GET");
             setFamilyData(data)
         } catch (e) {
             console.log(e)
         } finally {
-            setLoading(false)
+            setSingleFetchLoading(false)
         }
     }
 
@@ -275,21 +235,11 @@ export default function FamilyPage() {
         }
     }
 
-    async function asyncCreateFamily() {
-        setLoading(true)
-        try {
-            await dataFetch("api/families", "POST", familyData);
-        } catch (e) {
-            console.log(e)
-        } finally {
-            setLoading(false)
-        }
-    }
-
     /* End Fetching */
 
     return (
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
+            {singleFetchLoading && <LoadingPopUp />}
             <Toaster />
 
             <Sidebar page="families" />
@@ -324,7 +274,7 @@ export default function FamilyPage() {
                     page="families"
                     pageAdj="Family"
                     columns={columns}
-                    tableRows={tableRows}
+                    tableRows={ <TableFamilyRows families={families} editButtonHandler={editButtonHandler} openDeletePopup={openDeletePopup} /> }
                     pageInfo={pageInfo}
                     loading={loading}
                     onAddButtonHandler={addButtonHandler}

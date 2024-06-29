@@ -49,8 +49,8 @@ export default function FamilyPage() {
     const [isDeleteDialogOpen, setDeleteIsDialogOpen] = useState(null)
 
     /* Component Creation */
-    const columns = ["Family Name", 
-        "Household Income", "No. of Family Members", 
+    const columns = ["Family Name",
+        "Household Income", "No. of Family Members",
         "Coordinates", "Address", "Actions"]
     /* End Component Creation */
 
@@ -77,8 +77,8 @@ export default function FamilyPage() {
                 await asyncCreateFamily()
                 toggleToast("Family record has been created")
             } else {
-                toggleToast("Family record has been updated")
                 await asyncUpdateFamily()
+                toggleToast("Family record has been updated")
             }
 
         } catch (e) {
@@ -238,49 +238,51 @@ export default function FamilyPage() {
     /* End Fetching */
 
     return (
-        <div className="flex min-h-screen w-full flex-col bg-muted/40">
+        <>
             {singleFetchLoading && <LoadingPopUp />}
-            <Toaster />
+            <div className="flex min-h-screen w-full flex-col bg-muted/40">
+                <Toaster />
 
-            <Sidebar page="families" />
-            <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
-                <AlertDialog open={isDeleteDialogOpen} onOpenChange={closeDeletePopup} >
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                This action cannot be undone. This will permanently delete this
-                                family and remove your data from our servers.
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={onFamiliesDataDelete}>Continue</AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
-                {isPopupOpen &&
-                    <PopupFamilyForm
-                        dialogData={dialogData}
-                        isLoading={loading}
-                        isOpen={isPopupOpen}
-                        onClose={onClosePopup}
-                        family={familyData}
-                        onFamilyDataChange={onFamilyDataChange}
-                        onFamiliesDataSubmit={onFamiliesDataSubmit}
-                        handleMapClick={handleMapClick}
-                    />}
-                <RecordTable
-                    page="families"
-                    pageAdj="Family"
-                    columns={columns}
-                    tableRows={ <TableFamilyRows families={families} editButtonHandler={editButtonHandler} openDeletePopup={openDeletePopup} /> }
-                    pageInfo={pageInfo}
-                    loading={loading}
-                    onAddButtonHandler={addButtonHandler}
-                />
+                <Sidebar page="families" />
+                <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
+                    <AlertDialog open={isDeleteDialogOpen} onOpenChange={closeDeletePopup} >
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This action cannot be undone. This will permanently delete this
+                                    family and remove your data from our servers.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={onFamiliesDataDelete}>Continue</AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                    {isPopupOpen &&
+                        <PopupFamilyForm
+                            dialogData={dialogData}
+                            isLoading={loading}
+                            isOpen={isPopupOpen}
+                            onClose={onClosePopup}
+                            family={familyData}
+                            onFamilyDataChange={onFamilyDataChange}
+                            onFamiliesDataSubmit={onFamiliesDataSubmit}
+                            handleMapClick={handleMapClick}
+                        />}
+                    <RecordTable
+                        page="families"
+                        pageAdj="Family"
+                        columns={columns}
+                        tableRows={<TableFamilyRows families={families} editButtonHandler={editButtonHandler} openDeletePopup={openDeletePopup} />}
+                        pageInfo={pageInfo}
+                        loading={loading}
+                        onAddButtonHandler={addButtonHandler}
+                    />
+                </div>
             </div>
-        </div>
+        </>
     )
 }
 

@@ -1,13 +1,12 @@
 import React from "react";
-import { LoaderCircle } from "lucide-react";
+import LoadingMap from "./LoadingMap";
 
 
-
-
-export default function Loading(){
+export default function Loading() {
     return (
-    <div className="flex flex-col h-screen w-screen justify-center items-center">
-        <LoaderCircle className="mr-2 h-16 w-16 animate-spin" />
-        <p className=" border-b pb-2 text-2xl tracking-tight ">Sandali lang!</p>
-    </div>)
+        <div className="flex flex-col h-screen w-screen justify-center items-center">
+            <LoadingMap />
+            <p className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold ">Let me cook...</p>
+        </div>)
 }
+

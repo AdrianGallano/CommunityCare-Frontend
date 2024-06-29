@@ -30,6 +30,7 @@ import {
     TabsTrigger,
 } from "@/components/ui/tabs"
 import Header from "../header/Header"
+import LoadingMap from "../loading/LoadingMap"
 
 
 
@@ -82,14 +83,17 @@ export default function RecordTable({ page, pageAdj, columns, tableRows, pageInf
                                     {loading
                                         ? <TableRow>
                                             <TableCell colSpan="100%">
-                                                <LoaderCircle className="m-auto h-12 w-12 animate-spin" />
+                                                <div className="flex flex-col items-center p-6">
+                                                    <LoadingMap size="h-8 w-8" />
+                                                    <p className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">Let  me cook...</p>
+                                                </div>
                                             </TableCell>
                                         </TableRow>
-                                        : tableRows.length == 0 ? 
-                                        <TableRow>
-                                            <TableCell className="scroll-m-20 border-b py-12 tracking-tight first:mt-0 text-center" colSpan="100%">
-                                                <p className="text-sm font-semibold text-gray-500">No {pageAdj} Record Exist</p>
-                                            </TableCell>
+                                        : tableRows.length == 0 ?
+                                            <TableRow>
+                                                <TableCell className="scroll-m-20 border-b py-12 tracking-tight first:mt-0 text-center" colSpan="100%">
+                                                    <p className="text-sm font-semibold text-gray-500">No {pageAdj} Record Exist</p>
+                                                </TableCell>
                                             </TableRow> : tableRows}
                                 </TableBody>
                             </Table>

@@ -14,7 +14,11 @@ import { useState, useEffect } from "react"
 /* Shadcn Components */
 
 
-import { Toaster, toast } from "sonner"
+import { Toaster } from "sonner"
+import { toggleToast } from "../components/toaster/ToggleToaster"
+import moment from "moment/moment"
+
+
 
 import {
     AlertDialog,
@@ -28,6 +32,23 @@ import {
 } from "@/components/ui/alert-dialog"
 import Loading from "../components/loading/Loading"
 
+
+/* 
+BRAINSTORM 2
+1. We should focus on components instead?
+2. Family Fetches are already at their lowest level
+3.
+
+*/
+
+
+/* 
+PLAN 2
+1. DELETE COMPONENT
+2.
+3.
+
+*/
 
 export default function FamilyPage() {
     const [families, setFamilies] = useState([])
@@ -63,6 +84,7 @@ export default function FamilyPage() {
 
     /* Events */
 
+    /* CHECKED ✅ */
     function onFamilyDataChange(e) {
         setFamilyData((prevFamilyData) => {
             const { name, value } = e.target
@@ -109,6 +131,7 @@ export default function FamilyPage() {
     }
 
     /* End Events */
+    /* END CHECKED ✅ */
 
     /* Actions */
 
@@ -151,15 +174,7 @@ export default function FamilyPage() {
         setIsPopupOpen(true)
     }
 
-    function toggleToast(title) {
-        toast(title, {
-            description: "Sunday, December 03, 2023 at 9:00 AM",
-            action: {
-                label: "Close",
-                onClick: () => console.log("Closed"),
-            },
-        })
-    }
+
 
 
     function handleMapClick(newCoordinates) {

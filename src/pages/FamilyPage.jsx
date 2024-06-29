@@ -4,6 +4,8 @@ import RecordTable from "../components/recordtable/RecordTable"
 import PopupFamilyForm from "../components/families/PopupFamilyForm"
 import LoadingPopUp from "../components/loading/LoadingPopUp"
 import TableFamilyRows from "../components/families/TableFamilyRows"
+import AlertPopup from "../components/alertpopup/AlertPopup"
+
 
 /* Utils */
 import dataFetch from "../services/api"
@@ -12,50 +14,18 @@ import dataFetch from "../services/api"
 import { useState, useEffect } from "react"
 
 /* Shadcn Components */
-
-
 import { Toaster } from "sonner"
 import { toggleToast } from "../components/toaster/ToggleToaster"
-import moment from "moment/moment"
 
 
-
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import Loading from "../components/loading/Loading"
-
-
-/* 
-BRAINSTORM 2
-1. We should focus on components instead?
-2. Family Fetches are already at their lowest level
-3.
-
-*/
-
-
-/* 
-PLAN 2
-1. DELETE COMPONENT
-2.
-3.
-
-*/
 
 export default function FamilyPage() {
     const [families, setFamilies] = useState([])
     const [pageInfo, setPageInfo] = useState({})
     const [loading, setLoading] = useState(false)
     const [singleFetchLoading, setSingleFetchLoading] = useState(false)
-    const [isPopupOpen, setIsPopupOpen] = useState(false)
+    const [submitLoading, setSubmitLoading] = useState(false)
+    const [isFamilyFormPopupOpen, setisFamilyFormPopupOpen] = useState(false)
     const [familyData, setFamilyData] = useState({
         title: "",
         no_of_members: "",
@@ -67,7 +37,7 @@ export default function FamilyPage() {
 
     const [dialogData, setDialogData] = useState(null)
     const [submitEventMethod, setSubmitEventMethod] = useState(null)
-    const [isDeleteDialogOpen, setDeleteIsDialogOpen] = useState(null)
+    const [isDeleteDialogOpen, setDeleteIsDialogOpen] = useState(false)
 
     /* Component Creation */
     const columns = ["Family Name",
@@ -84,7 +54,6 @@ export default function FamilyPage() {
 
     /* Events */
 
-    /* CHECKED ✅ */
     function onFamilyDataChange(e) {
         setFamilyData((prevFamilyData) => {
             const { name, value } = e.target
@@ -93,7 +62,6 @@ export default function FamilyPage() {
     }
 
     async function onFamiliesDataSubmit() {
-        setLoading(true)
         try {
             if (submitEventMethod == "POST") {
                 await asyncCreateFamily()
@@ -106,32 +74,28 @@ export default function FamilyPage() {
         } catch (e) {
             console.log(e)
         } finally {
-            setLoading(false)
-            onClosePopup()
+            onCloseOfFamilyFormPopup()
             asyncFetchFamilies()
         }
     }
 
-    function onClosePopup() {
-        setIsPopupOpen(false)
+    function onCloseOfFamilyFormPopup() {
+        setisFamilyFormPopupOpen(false)
     }
 
     async function onFamiliesDataDelete() {
-        setLoading(true)
         try {
             await asyncDeletefamily()
             toggleToast("Family record has been deleted")
         } catch (e) {
             console.log(e)
         } finally {
-            setLoading(false)
             closeDeletePopup()
             asyncFetchFamilies()
         }
     }
 
     /* End Events */
-    /* END CHECKED ✅ */
 
     /* Actions */
 
@@ -142,7 +106,7 @@ export default function FamilyPage() {
             title: "Update Family",
             description: "Make modifications to the families record here. Click save when you're done."
         })
-        setIsPopupOpen(true)
+        setisFamilyFormPopupOpen(true)
     }
 
     async function openDeletePopup(familyId) {
@@ -156,26 +120,18 @@ export default function FamilyPage() {
 
     function addButtonHandler() {
         setSubmitEventMethod("POST")
-        setFamilyData({
-            id: "",
-            title: "",
-            no_of_members: "",
-            duration_of_residence: "",
-            total_family_income: "",
-            address: "",
-            coordinates: "",
-        })
+
+        for (let key in familyData) {
+            familyData[key] = ""
+        }
 
         setDialogData({
             title: "Add Family",
             description: "Make additions to the families record here. Click save when you're done."
         })
 
-        setIsPopupOpen(true)
+        setisFamilyFormPopupOpen(true)
     }
-
-
-
 
     function handleMapClick(newCoordinates) {
         setFamilyData((prevFamilyData) => {
@@ -188,13 +144,13 @@ export default function FamilyPage() {
 
     /* Fetching */
     async function asyncCreateFamily() {
-        setLoading(true)
+        setSubmitLoading(true)
         try {
             await dataFetch("api/families", "POST", familyData);
         } catch (e) {
             console.log(e)
         } finally {
-            setLoading(false)
+            setSubmitLoading(false)
         }
     }
 
@@ -216,8 +172,8 @@ export default function FamilyPage() {
     }
 
     async function asyncFetchFamily(familyId) {
+        setSingleFetchLoading(true)
         try {
-            setSingleFetchLoading(true)
             const data = await dataFetch(`api/families/${familyId}`, "GET");
             setFamilyData(data)
         } catch (e) {
@@ -228,14 +184,14 @@ export default function FamilyPage() {
     }
 
     async function asyncUpdateFamily() {
-        setLoading(true)
+        setSubmitLoading(true)
         try {
             const data = await dataFetch(`api/families/${familyData.id}`, "PUT", familyData);
             setFamilyData(data)
         } catch (e) {
             console.log(e)
         } finally {
-            setLoading(false)
+            setSubmitLoading(false)
         }
     }
 
@@ -260,27 +216,19 @@ export default function FamilyPage() {
 
                 <Sidebar page="families" />
                 <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
-                    <AlertDialog open={isDeleteDialogOpen} onOpenChange={closeDeletePopup} >
-                        <AlertDialogContent>
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    This action cannot be undone. This will permanently delete this
-                                    family and remove your data from our servers.
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={onFamiliesDataDelete}>Continue</AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
-                    {isPopupOpen &&
+                    <AlertPopup
+                        isDeleteDialogOpen={isDeleteDialogOpen}
+                        closeDeletePopup={closeDeletePopup}
+                        onFamiliesDataDelete={onFamiliesDataDelete}
+                        description="This action cannot be undone. This will permanently delete this
+                        family and remove your data from our servers."
+                    />
+                    {isFamilyFormPopupOpen &&
                         <PopupFamilyForm
                             dialogData={dialogData}
-                            isLoading={loading}
-                            isOpen={isPopupOpen}
-                            onClose={onClosePopup}
+                            isLoading={submitLoading}
+                            isOpen={isFamilyFormPopupOpen}
+                            onClose={onCloseOfFamilyFormPopup}
                             family={familyData}
                             onFamilyDataChange={onFamilyDataChange}
                             onFamiliesDataSubmit={onFamiliesDataSubmit}
@@ -300,11 +248,3 @@ export default function FamilyPage() {
         </>
     )
 }
-
-
-/* 
-we need to determine how we'll handle the popups 
-we could have alt solutions but it'll be better if we can do it as simple as we can
-and it could have a SOLID Principle
-
-*/

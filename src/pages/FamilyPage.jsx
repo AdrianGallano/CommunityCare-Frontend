@@ -154,10 +154,10 @@ export default function FamilyPage() {
         }
     }
 
-    const asyncFetchFamilies = async () => {
+    const asyncFetchFamilies = async (pageSize = "10") => {
         setLoading(true)
         try {
-            const data = await dataFetch("api/families?page_size=10", "GET")
+            const data = await dataFetch(`api/families?page_size=${pageSize}`, "GET")
             setFamilies(data.results)
             setPageInfo({
                 "count": data.count,
@@ -239,6 +239,7 @@ export default function FamilyPage() {
                         pageAdj="Family"
                         columns={columns}
                         tableRows={<TableFamilyRows families={families} editButtonHandler={editButtonHandler} openDeletePopup={openDeletePopup} />}
+                        asyncFetchFamilies={asyncFetchFamilies}
                         pageInfo={pageInfo}
                         loading={loading}
                         onAddButtonHandler={addButtonHandler}

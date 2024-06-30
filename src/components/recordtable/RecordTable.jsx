@@ -1,7 +1,5 @@
 import {
-    PlusCircle,
-    LoaderCircle,
-    Box
+    PlusCircle
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -33,22 +31,46 @@ import Header from "../header/Header"
 import LoadingMap from "../loading/LoadingMap"
 import { useEffect, useState } from "react"
 
+import {
+    ChevronRight,
+    ChevronLeft,
+    ChevronsLeft,
+    ChevronsRight,
+} from "lucide-react"
+
+import NumberOfRowsPopOver from "./NumberOfRowsPopover"
 
 
-export default function RecordTable({ page, pageAdj, columns, tableRows, pageInfo, loading, onAddButtonHandler }) {
+
+export default function RecordTable({ page, pageAdj, columns, tableRows, asyncFetchFamilies, pageInfo, loading, onAddButtonHandler }) {
     const [isTableRowsEmpty, setIsTableRowsEmpty] = useState(false)
-    
+    const [isOpenNumberOfRowsPopover, setIsOpenNumberOfRowsPopover] = useState(false)
+    const [currentNumberOfRows, setCurrentNumberOfRows] = useState("10")
+
+
     useEffect(() => {
-        if("members" in tableRows.props && tableRows.props.members.length == 0){
+        if ("members" in tableRows.props && tableRows.props.members.length == 0) {
             setIsTableRowsEmpty(true)
-        }else if("families" in tableRows.props && tableRows.props.families.length == 0){
+        } else if ("families" in tableRows.props && tableRows.props.families.length == 0) {
             setIsTableRowsEmpty(true)
-        }else{
+        } else {
             setIsTableRowsEmpty(false)
-        } 
+        }
     }, [tableRows])
 
-    
+    useEffect(() => {
+        asyncFetchFamilies(currentNumberOfRows)
+    }, [currentNumberOfRows])
+
+    function onSelectNumberOfRowsHandler(currentValue) {
+        setCurrentNumberOfRows(currentValue)
+        setIsOpenNumberOfRowsPopover(false)
+    }
+
+    function isOpenNumberOfRowsPopoverHandler() {
+        setIsOpenNumberOfRowsPopover((currentValue) => !currentValue)
+    }
+
     const tableColumns = columns.map((column, index) => {
         return index == 0 || index == columns.length - 2 ?
             <TableHead key={index}>{column}</TableHead> :
@@ -58,6 +80,7 @@ export default function RecordTable({ page, pageAdj, columns, tableRows, pageInf
                     {column}
                 </TableHead>
     })
+
 
     return (<>
         <Header page={page} />
@@ -110,8 +133,36 @@ export default function RecordTable({ page, pageAdj, columns, tableRows, pageInf
                                 </TableBody>
                             </Table>
                         </CardContent>
-                        <CardFooter>
-                            <div className="text-xs text-muted-foreground">
+                        <CardFooter className="flex-col items-stretch gap-4">
+                            <div className="flex justify-between gap-4">
+                                <div className="flex items-center gap-4">
+                                    <p className="font-medium text-sm text-gray-600 text-nowrap">Rows per page</p>
+                                    <NumberOfRowsPopOver
+                                        isOpenNumberOfRowsPopover={isOpenNumberOfRowsPopover}
+                                        onSelectNumberOfRowsHandler={onSelectNumberOfRowsHandler}
+                                        isOpenNumberOfRowsPopoverHandler={isOpenNumberOfRowsPopoverHandler}
+                                        currentNumberOfRows={currentNumberOfRows}
+                                    />
+                                </div>
+                                <div>
+                                    <div>
+
+                                        <Button variant="outline" size="icon" className="hidden md:inline-flex">
+                                            <ChevronsLeft className="h-4 w-4" />
+                                        </Button>
+                                        <Button variant="outline" size="icon">
+                                            <ChevronLeft className="h-4 w-4" />
+                                        </Button>
+                                        <Button variant="outline" size="icon">
+                                            <ChevronRight className="h-4 w-4" />
+                                        </Button>
+                                        <Button variant="outline" size="icon" className="hidden md:inline-flex" >
+                                            <ChevronsRight className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="text-xs text-muted-foreground self-end">
                                 Showing <strong>{pageInfo.previous ? pageInfo.previous : 1}-{pageInfo.count}</strong> of <strong>{pageInfo.count}</strong> {page[0].toUpperCase() + page.slice(1)}
                             </div>
                         </CardFooter>
@@ -122,3 +173,7 @@ export default function RecordTable({ page, pageAdj, columns, tableRows, pageInf
     </>
     )
 }
+
+
+
+

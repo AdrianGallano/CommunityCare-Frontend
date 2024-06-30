@@ -31,11 +31,24 @@ import {
 } from "@/components/ui/tabs"
 import Header from "../header/Header"
 import LoadingMap from "../loading/LoadingMap"
+import { useEffect, useState } from "react"
 
 
 
 export default function RecordTable({ page, pageAdj, columns, tableRows, pageInfo, loading, onAddButtonHandler }) {
+    const [isTableRowsEmpty, setIsTableRowsEmpty] = useState(false)
+    
+    useEffect(() => {
+        if("members" in tableRows.props && tableRows.props.members.length == 0){
+            setIsTableRowsEmpty(true)
+        }else if("families" in tableRows.props && tableRows.props.families.length == 0){
+            setIsTableRowsEmpty(true)
+        }else{
+            setIsTableRowsEmpty(false)
+        } 
+    }, [tableRows])
 
+    
     const tableColumns = columns.map((column, index) => {
         return index == 0 || index == columns.length - 2 ?
             <TableHead key={index}>{column}</TableHead> :
@@ -45,7 +58,6 @@ export default function RecordTable({ page, pageAdj, columns, tableRows, pageInf
                     {column}
                 </TableHead>
     })
-
 
     return (<>
         <Header page={page} />
@@ -89,7 +101,7 @@ export default function RecordTable({ page, pageAdj, columns, tableRows, pageInf
                                                 </div>
                                             </TableCell>
                                         </TableRow>
-                                        : tableRows.length == 0 ?
+                                        : isTableRowsEmpty ?
                                             <TableRow>
                                                 <TableCell className="scroll-m-20 border-b py-12 tracking-tight first:mt-0 text-center" colSpan="100%">
                                                     <p className="text-sm font-semibold text-gray-500">No {pageAdj} Record Exist</p>

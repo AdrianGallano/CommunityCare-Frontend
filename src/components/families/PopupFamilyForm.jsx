@@ -72,18 +72,19 @@ export default function PopupFamilyForm({ dialogData, isLoading, isOpen, onClose
                             disabled
                         />
                         <div>
-                            <Popover>
+                            <Popover className="z-50">
                                 <PopoverTrigger asChild>
-                                    <Button>
+                                <Button>
                                         <LocateFixed />
                                     </Button>
                                 </PopoverTrigger>
-                                <PopoverContent>
-                                    <div className="flex flex-col items-center gap-2">
+                                <PopoverContent className="z-50">
+                                    <div className="flex flex-col items-center gap-2 z-50">
                                         <p className="text-center">
                                             <em>Locate your coordinates here, click the map to change pin location.</em>
                                         </p>
-                                        <MapForm handleMapClick={handleMapClick}
+                                        <MapForm className="z-50"
+                                            handleMapClick={handleMapClick}
                                             coordinates={family.coordinates == "" ? [0, 0] : family.coordinates.split(", ").map(coordinate => parseFloat(coordinate))} />
                                     </div>
                                 </PopoverContent>

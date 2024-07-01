@@ -20,12 +20,9 @@ import { toggleToast } from "../components/toaster/ToggleToaster"
 
 
 export default function FamilyPage() {
+    /* Data */
     const [families, setFamilies] = useState([])
     const [pageInfo, setPageInfo] = useState({})
-    const [loading, setLoading] = useState(false)
-    const [singleFetchLoading, setSingleFetchLoading] = useState(false)
-    const [submitLoading, setSubmitLoading] = useState(false)
-    const [isFamilyFormPopupOpen, setisFamilyFormPopupOpen] = useState(false)
     const [familyData, setFamilyData] = useState({
         title: "",
         no_of_members: "",
@@ -34,10 +31,21 @@ export default function FamilyPage() {
         address: "",
         coordinates: "",
     })
-
+    
     const [dialogData, setDialogData] = useState(null)
+    
+    /* Loadings */
+    const [loadingFetchFamilies, setLoadingFetchFamilies] = useState(false)
+    const [singleFetchLoading, setSingleFetchLoading] = useState(false)
+    const [submitLoading, setSubmitLoading] = useState(false)
+    
     const [submitEventMethod, setSubmitEventMethod] = useState(null)
+
+    /* CRUD */
+    const [isFamilyFormPopupOpen, setisFamilyFormPopupOpen] = useState(false)
     const [isDeleteDialogOpen, setDeleteIsDialogOpen] = useState(false)
+    /* Pagination */
+    const [currentNumberOfRows, setCurrentNumberOfRows] = useState("10")
 
     /* Component Creation */
     const columns = ["Family Name",
@@ -48,7 +56,7 @@ export default function FamilyPage() {
     /* Effects */
     useEffect(() => {
         asyncFetchFamilies();
-    }, [])
+    }, [currentNumberOfRows])
 
     /* End Effects */
 
@@ -139,6 +147,10 @@ export default function FamilyPage() {
         })
     }
 
+    function handleRowsPopoverChange(value){
+        setCurrentNumberOfRows(value)
+    }
+    
     /* End Actions */
 
 
@@ -154,10 +166,10 @@ export default function FamilyPage() {
         }
     }
 
-    const asyncFetchFamilies = async (pageSize = "10") => {
-        setLoading(true)
+    const asyncFetchFamilies = async () => {
+        setLoadingFetchFamilies(true)
         try {
-            const data = await dataFetch(`api/families?page_size=${pageSize}`, "GET")
+            const data = await dataFetch(`api/families?page_size=${currentNumberOfRows}`, "GET")
             setFamilies(data.results)
             setPageInfo({
                 "count": data.count,
@@ -167,7 +179,7 @@ export default function FamilyPage() {
         } catch (e) {
             console.log(e)
         } finally {
-            setLoading(false)
+            setLoadingFetchFamilies(false)
         }
     }
 
@@ -196,13 +208,13 @@ export default function FamilyPage() {
     }
 
     async function asyncDeletefamily() {
-        setLoading(true)
+        setSingleFetchLoading(true)
         try {
             await dataFetch(`api/families/${familyData.id}`, "DELETE");
         } catch (e) {
             console.log(e)
         } finally {
-            setLoading(false)
+            setSingleFetchLoading(false)
         }
     }
 
@@ -241,8 +253,10 @@ export default function FamilyPage() {
                         tableRows={<TableFamilyRows families={families} editButtonHandler={editButtonHandler} openDeletePopup={openDeletePopup} />}
                         asyncFetchFamilies={asyncFetchFamilies}
                         pageInfo={pageInfo}
-                        loading={loading}
+                        loading={loadingFetchFamilies}
                         onAddButtonHandler={addButtonHandler}
+                        handleRowsPopoverChange={handleRowsPopoverChange}
+                        currentNumberOfRows={currentNumberOfRows}
                     />
                 </div>
             </div>

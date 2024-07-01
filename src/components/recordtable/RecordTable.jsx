@@ -42,10 +42,10 @@ import NumberOfRowsPopOver from "./NumberOfRowsPopover"
 
 
 
-export default function RecordTable({ page, pageAdj, columns, tableRows, asyncFetchFamilies, pageInfo, loading, onAddButtonHandler }) {
+export default function RecordTable({ page, pageAdj, columns, tableRows, pageInfo, loading, onAddButtonHandler, handleRowsPopoverChange, currentNumberOfRows }) {
     const [isTableRowsEmpty, setIsTableRowsEmpty] = useState(false)
     const [isOpenNumberOfRowsPopover, setIsOpenNumberOfRowsPopover] = useState(false)
-    const [currentNumberOfRows, setCurrentNumberOfRows] = useState("10")
+
 
 
     useEffect(() => {
@@ -58,12 +58,10 @@ export default function RecordTable({ page, pageAdj, columns, tableRows, asyncFe
         }
     }, [tableRows])
 
-    useEffect(() => {
-        asyncFetchFamilies(currentNumberOfRows)
-    }, [currentNumberOfRows])
+
 
     function onSelectNumberOfRowsHandler(currentValue) {
-        setCurrentNumberOfRows(currentValue)
+        handleRowsPopoverChange(currentValue)
         setIsOpenNumberOfRowsPopover(false)
     }
 
